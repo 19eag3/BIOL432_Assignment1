@@ -1,0 +1,87 @@
+---
+title: "Assignment 1"
+author: "Elliot Gavrin"
+date: "2023-01-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+`r knitr::spin_child("dataGenerato.R")`
+dataGenerato.R generates random distributed data with no negative or 0 values to be used as values for limb length and limb width.
+
+`r knitr::spin_child("volumeEstimato.R")`
+volumeEstimato.R calculates limb volume from the generated limb length and limb width
+
+1.
+```{r}
+MyData <-read.csv("C:/Users/egavr/OneDrive/Documents/BIOL432/a1/measurements.csv")
+dim(MyData)
+head(MyData)
+tail(MyData)
+str(MyData)
+summary(MyData)
+library(data.table)
+library(dplyr)
+library(ggplot2)
+```
+
+2.
+```{r}
+DataSort <- data.frame(MyData$Organisms, MyData$Observer, MyData$Limb_volume) #creates data frame
+```
+
+3. 
+
+```{r}
+Species1 <- subset(DataSort, Organisms == "Poecile atricapillus")
+Species1Avg <- mean(Species1$MyData.Limb_volume)
+
+Species2 <- subset(DataSort, Organisms == "Columba livia")
+Species2Avg <- mean(Species2$MyData.Limb_volume)
+
+Species3 <- subset(DataSort, Organisms == "Cyanocitta cristata")
+Species3Avg <- mean(Species3$MyData.Limb_volume)
+
+Species4<- subset(DataSort, Organisms == "Pica serica")
+Species4Avg <- mean(Species4$MyData.Limb_volume)
+
+Species5 <- subset(DataSort, Organisms == "Anas acuta")
+Species5Avg <- mean(Species5$MyData.Limb_volume)
+
+dfavg <-data.frame(Species1Avg, Species2Avg, Species3Avg, Species4Avg, Species5Avg)
+colnames(dfavg) = c('Poecile atricapillus','Columba livia','Cyanocitta cristata','Pica serica','Anas acuta')
+rownames(dfavg) = c('Average Limb Volume')
+averagevolume <-table(dfavg)
+print(dfavg)
+```
+
+4.
+```{r}
+observnum <-rename(count(DataSort, MyData.Organisms, MyData.Observer), Freq = n)
+setDT(observnum)
+print(observnum)
+```
+
+5.
+```{r}
+DataSort <- data.frame(MyData$Organisms, MyData$Observer, MyData$Limb_volume)
+ggplot(aes(y=MyData.Limb_volume,color=MyData.Organisms), data=DataSort)+
+  geom_boxplot(bins=20)+
+  labs(x = "Species", y = "Limb volume", color = "Species")+
+  theme_classic()
+```
+
+Figure 1: Box plot displaying the distribution of limb volume in each of the five different species: Anas acuta, Columba livia, Cyanocitta cristata, Pica serica, and Poecile atripillus.
+
+6.
+```{r}
+ggplot(aes(x=Freq, color=MyData.Observer), data=observnum)+
+  geom_bar(bins=10)+
+  labs(x = "Frequency", y="", color="Observer")+
+  facet_wrap(vars(MyData.Organisms), scales='free')+
+  theme_classic()
+```
+
+Figure 2: Multi-panel plot showing frequency histograms for each of the 5 species. Colored outlines around the bins represent the individual observer's count. 
